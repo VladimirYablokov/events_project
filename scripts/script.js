@@ -1,51 +1,61 @@
 const btnElem = document.querySelector('button')
+const rootElem = document.querySelector('.root')
+const modalElem = document.createElement('div');
+const eventsContainer = document.createElement('div');
+
+
 const date = new Date()
 let dateNow = date.toDateString()
 let timestamp = date.setDate(date.getDate() + 7)
 let finalDate = new Date(timestamp).toDateString()
 
-function setID(){
+function setID() {
     let id = 1
-    return function(){
+    return function () {
         return id++
     }
 }
+
 let id = setID()
 
 const events = [
-    {
-        start_date: dateNow,
-        final_date: finalDate,
-        overview: 'Описание не больше 240 символов!',
-        state: true,
-        id: id()
-    }
+    // {
+    //     start_date: dateNow,
+    //     final_date: finalDate,
+    //     overview: 'Описание не больше 240 символов!',
+    //     state: true,
+    //     id: id()
+    // }
 ];
 
-btnElem.addEventListener('click', event => {
-    event.preventDefault()
-    const rootElem = document.querySelector('.root')
-    rootElem.classList.add('root')
-    const modalElem = document.createElement('div');
-    modalElem.classList.add('events');
+function addModal() {
     const closeModalElem = document.createElement('div')
-    closeModalElem.classList.add('closeModal')
     const formElem = document.createElement('form')
-    formElem.classList.add('form');
     const inputDateElem = document.createElement('input')
-    inputDateElem.classList.add('inputDate')
-    inputDateElem.setAttribute('type', 'date' )
-    inputDateElem.setAttribute('name', 'date' )
-    const inputTextElem = document.createElement('input')
-    inputTextElem.setAttribute('type', 'text' )
-    inputTextElem.setAttribute('name', 'text' )
-    inputTextElem.classList.add('inputText')
+    const inputTextElem = document.createElement('textarea')
     const formBtn = document.createElement('button')
-    formBtn.innerText= 'Добавить'
-    formElem.append(inputDateElem,inputTextElem, formBtn)
-    modalElem.append(closeModalElem, formElem)
-    closeModalElem.innerText = '❌'
+    modalElem.classList.add('events');
+    closeModalElem.classList.add('closeModal')
+    formElem.classList.add('form');
+    inputDateElem.classList.add('inputDate')
+    inputTextElem.classList.add('inputText')
+    formBtn.classList.add('formBtn')
+    eventsContainer.classList.add('eventsContainer')
+    inputDateElem.setAttribute('type', 'date')
+    inputDateElem.setAttribute('name', 'date')
+    inputTextElem.setAttribute('type', 'text')
+    inputTextElem.setAttribute('name', 'text')
+    inputTextElem.setAttribute('placeholder', 'введите текст')
 
+    rootElem.append(modalElem)
+    modalElem.append(eventsContainer);
+    formElem.append(inputDateElem, inputTextElem, formBtn)
+    modalElem.append(closeModalElem, formElem)
+    formBtn.innerText = 'Добавить'
+    closeModalElem.innerText = '❌'
+    closeModalElem.addEventListener('click', () => {
+        modalElem.remove()
+    })
     formElem.addEventListener('submit', e => {
         e.preventDefault()
         let dateValue = formElem.date.value
@@ -53,41 +63,58 @@ btnElem.addEventListener('click', event => {
         events.push({
             start_date: dateValue,
             final_date: finalDate,
-            overview:  textValue,
+            overview: textValue,
             state: true,
             id: id()
         })
+        eventsContainer.innerHTML = ''
+        render(events)
+        formElem.date.value = '';
+        formElem.text.value = ''
     })
+}
 
-    closeModalElem.addEventListener('click', () => {
-        modalElem.remove()
-    })
+btnElem.addEventListener('click', event => {
+    event.preventDefault()
+    addModal()
+})
 
-    events.map((elem) => {
-        const {start_date,final_date,  overview} = elem
+function render(data){
+    eventsContainer.innerHTML = ''
+
+    data.map((elem) => {
+        const {start_date,final_date, overview} = elem
         const eventElem = document.createElement('div');
-        eventElem.classList.add('event');
         const dateElem = document.createElement('p');
-        dateElem.classList.add('date');
-        const finalDateElem = document.createElement('p')
-        finalDateElem.classList.add('finalDate')
+        const finalDateElem = document.createElement('p');
         const overviewElem = document.createElement('p');
+        const closeEventElem = document.createElement('div');
+
+        eventElem.classList.add('event');
+        dateElem.classList.add('date');
+        finalDateElem.classList.add('finalDate')
         overviewElem.classList.add('overview');
-        const closeEventElem = document.createElement('div')
         closeEventElem.classList.add('closeModal')
-        closeEventElem.innerText = '❌'
-        closeEventElem.addEventListener('click', () => {
-            eventElem.remove()
-        })
-        rootElem.append(modalElem);
-        modalElem.append(eventElem);
+
+        eventsContainer.append(eventElem); // Исправленная строка
         eventElem.append(dateElem, overviewElem, finalDateElem, closeEventElem)
-        dateElem.innerText = `Начало события: 
+
+        closeEventElem.innerText = '❌'
+        dateElem.innerText = `Начало события:
         ${start_date}`;
         overviewElem.innerText = overview;
         finalDateElem.innerText = `Конец события:
         ${final_date}`
+
+        closeEventElem.addEventListener('click', () => {
+            eventElem.remove()
+        })
     })
-})
+}
+// render(events)
+
+
+
+
 
 
