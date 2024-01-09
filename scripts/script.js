@@ -3,12 +3,6 @@ const rootElem = document.querySelector('.root')
 const modalElem = document.createElement('div');
 const eventsContainer = document.createElement('div');
 
-
-const date = new Date()
-let dateNow = date.toDateString()
-let timestamp = date.setDate(date.getDate() + 7)
-let finalDate = new Date(timestamp).toDateString()
-
 function setID() {
     let id = 1
     return function () {
@@ -17,16 +11,8 @@ function setID() {
 }
 
 let id = setID()
+let events = [];
 
-const events = [
-    // {
-    //     start_date: dateNow,
-    //     final_date: finalDate,
-    //     overview: 'Описание не больше 240 символов!',
-    //     state: true,
-    //     id: id()
-    // }
-];
 
 function addModal() {
     const closeModalElem = document.createElement('div')
@@ -34,6 +20,7 @@ function addModal() {
     const inputDateElem = document.createElement('input')
     const inputTextElem = document.createElement('textarea')
     const formBtn = document.createElement('button')
+
     modalElem.classList.add('events');
     closeModalElem.classList.add('closeModal')
     formElem.classList.add('form');
@@ -41,6 +28,7 @@ function addModal() {
     inputTextElem.classList.add('inputText')
     formBtn.classList.add('formBtn')
     eventsContainer.classList.add('eventsContainer')
+
     inputDateElem.setAttribute('type', 'date')
     inputDateElem.setAttribute('name', 'date')
     inputTextElem.setAttribute('type', 'text')
@@ -53,12 +41,17 @@ function addModal() {
     modalElem.append(closeModalElem, formElem)
     formBtn.innerText = 'Добавить'
     closeModalElem.innerText = '❌'
+
     closeModalElem.addEventListener('click', () => {
         modalElem.remove()
     })
+
     formElem.addEventListener('submit', e => {
         e.preventDefault()
         let dateValue = formElem.date.value
+        let startDate = new Date(dateValue)
+        startDate.setDate(startDate.getDate() + 7)
+        let finalDate = startDate.toISOString().split('T')[0]
         let textValue = formElem.text.value
         events.push({
             start_date: dateValue,
@@ -81,7 +74,6 @@ btnElem.addEventListener('click', event => {
 
 function render(data){
     eventsContainer.innerHTML = ''
-
     data.map((elem) => {
         const {start_date,final_date, overview} = elem
         const eventElem = document.createElement('div');
@@ -96,7 +88,7 @@ function render(data){
         overviewElem.classList.add('overview');
         closeEventElem.classList.add('closeModal')
 
-        eventsContainer.append(eventElem); // Исправленная строка
+        eventsContainer.append(eventElem);
         eventElem.append(dateElem, overviewElem, finalDateElem, closeEventElem)
 
         closeEventElem.innerText = '❌'
@@ -107,7 +99,8 @@ function render(data){
         ${final_date}`
 
         closeEventElem.addEventListener('click', () => {
-            eventElem.remove()
+            events = events.filter(closeElem => closeElem.id !== elem.id)
+            render(events)
         })
     })
 }
